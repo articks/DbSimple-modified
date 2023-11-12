@@ -43,7 +43,8 @@ class DbSimple_Ibase extends DbSimple_Generic_Database
      * constructor(string $dsn)
      * Connect to Interbase/Firebird.
      */
-    function DbSimple_Ibase($dsn)
+    // function DbSimple_Ibase($dsn)
+    function __construct($dsn)
     {
         $p = DbSimple_Generic::parseDSN($dsn);
         if (!is_callable('ibase_connect')) {
@@ -217,7 +218,8 @@ class DbSimple_Ibase_Blob extends DbSimple_Generic_Blob
     var $id;
     var $database;
 
-    function DbSimple_Ibase_Blob(&$database, $id=null)
+    //function DbSimple_Ibase_Blob(&$database, $id=null)
+    function __construct(&$database, $id=null)
     {
         $this->database =& $database;
         $this->id = $id;

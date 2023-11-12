@@ -1130,7 +1130,8 @@ class DbSimple_Generic_Database extends DbSimple_Generic_LastError
      *
      * Prevent from direct creation of this object.
      */
-    function DbSimple_Generic_Database()
+    // function DbSimple_Generic_Database()
+    function __construct()
     {
         die("This is protected constructor! Do not instantiate directly at ".__FILE__." line ".__LINE__);
     }

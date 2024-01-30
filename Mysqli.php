@@ -24,15 +24,19 @@ require_once dirname(__FILE__) . '/Generic.php';
  */
 class DbSimple_Mysql extends DbSimple_Generic_Database
 {
+
+    var $dsn;
+
     var $link;
 
     /**
      * constructor(string $dsn)
      * Connect to MySQL.
      */
-    // function DbSimple_Mysql($dsn)
-    function __construct($dsn)
+    function DbSimple_Mysql($dsn)
     {
+        $this->dsn = $dsn;
+
         $p = DbSimple_Generic::parseDSN($dsn);
         if (!is_callable('mysqli_connect')) {
             return $this->_setLastError("-1", "MySQL extension is not loaded", "mysqli_connect");
@@ -158,7 +162,21 @@ class DbSimple_Mysql extends DbSimple_Generic_Database
     {
         $this->_lastQuery = $queryMain;
         $this->_expandPlaceholders($queryMain, false);
-        $result = @mysqli_query($this->link, $queryMain[0]);
+
+	$result = @mysqli_query($this->link, $queryMain[0]);
+
+        if ($result === false) {
+            if ($this->link && mysqli_errno($this->link) == "2006") {
+                if (mysqli_ping($this->link)) {
+                    $result = @mysqli_query($this->link, $queryMain[0]);
+                }
+                else {
+                    $this->DbSimple_Mysql($this->dsn);
+                    $result = @mysqli_query($this->link, $queryMain[0]);
+                }
+            }
+        }
+
         if ($result === false) return $this->_setDbError($queryMain[0]);
         if (!is_object($result)) {
             if (preg_match('/^\s* INSERT \s+/six', $queryMain[0])) {
@@ -205,8 +223,7 @@ class DbSimple_Mysql_Blob extends DbSimple_Generic_Blob
     var $blobdata = null;
     var $curSeek = 0;
 
-    // function DbSimple_Mysql_Blob(&$database, $blobdata=null)
-    function __construct(&$database, $blobdata=null)
+    function DbSimple_Mysql_Blob(&$database, $blobdata=null)
     {
         $this->blobdata = $blobdata;
         $this->curSeek = 0;
